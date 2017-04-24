@@ -76,6 +76,42 @@ app.post('/links',
     });
 });
 
+app.post('/signup', 
+(req, res, next) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  
+  console.log('** post @ /signup **', req.body);
+
+  // return models.Links.get({ url })
+  //   .then(link => {
+  //     if (link) {
+  //       throw link;
+  //     }
+  //     return models.Links.getUrlTitle(url);
+  //   })
+  //   .then(title => {
+  //     return models.Links.create({
+  //       url: url,
+  //       title: title,
+  //       baseUrl: req.headers.origin
+  //     });
+  //   })
+  //   .then(results => {
+  //     return models.Links.get({ id: results.insertId });
+  //   })
+  //   .then(link => {
+  //     throw link;
+  //   })
+  //   .error(error => {
+  //     res.status(500).send(error);
+  //   })
+  //   .catch(link => {
+  //     res.status(200).send(link);
+  //   });
+});
+
+
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/

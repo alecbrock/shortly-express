@@ -5,7 +5,7 @@ var httpMocks = require('node-mocks-http');
 
 var app = require('../server/app.js');
 var schema = require('../server/db/config.js');
-var port = 4568;
+var port = 5000;
 
 /************************************************************/
 // Mocha doesn't have a way to designate pending before blocks.
@@ -39,16 +39,15 @@ describe('', function() {
     /* TODO: Update user and password if different than on your local machine            */
     /*************************************************************************************/
     db = mysql.createConnection({
-      user: 'student',
-      password: 'student',
+      user: 'root',
+      password: 'plantlife',
       database: 'shortly'
     });
 
     /**************************************************************************************/
     /* TODO: If you create a new MySQL tables, add it to the tablenames collection below. */
     /**************************************************************************************/
-    var tablenames = ['links', 'clicks'
-];
+    var tablenames = ['links', 'clicks'];
 
     db.connect(function(err) {
       if (err) { return done(err); }
@@ -63,13 +62,16 @@ describe('', function() {
   });
 
   describe('Database Schema:', function() {
+
     it('contains a users table', function(done) {
       var queryString = 'SELECT * FROM users';
-      db.query(queryString, function(err, results) {
-        if (err) { return done(err); }
-
-        expect(results).to.deep.equal([]);
-        done();
+      db.query('truncate users', function(e, res) {
+        if (e) { return done(e); }
+        db.query(queryString, function(err, results) {
+          if (err) { return done(err); }
+          expect(results).to.deep.equal([]);
+          done();
+        });
       });
     });
 
@@ -107,16 +109,18 @@ describe('', function() {
 
     it('should increment the id of new rows', function(done) {
       var newUser = {
-        username: 'Howard',
+        username: 'Howard2',
         password: 'p@ssw0rd'
       };
       db.query('INSERT INTO users SET ?', newUser, function(error, result) {
+        console.log('***: ', result, error);
         var newUserId = result.insertId;
         var otherUser = {
           username: 'Muhammed',
           password: 'p@ssw0rd'
         };
         db.query('INSERT INTO users SET ?', otherUser, function(err, results) {
+          console.log('*** 2 ***: ', results, err);        
           var userId = results.insertId;
           expect(userId).to.equal(newUserId + 1);
           done(error || err);
@@ -125,7 +129,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Account Creation:', function() {
+  describe('Account Creation:', function() {
 
     it('signup creates a new user record', function(done) {
       var options = {
