@@ -327,8 +327,6 @@ describe('', function() {
     });
   });
 
-  // DONE SO FAR
-
   describe('Express Middleware', function() {
     var cookieParser = require('../server/middleware/cookieParser.js');
     var createSession = require('../server/middleware/auth.js').createSession;
@@ -358,7 +356,6 @@ describe('', function() {
 
         cookieParser(requestWithCookies, response, function() {
           var cookies = requestWithCookies.cookies;
-          console.log('** test > cookies **: ', cookies);
           expect(cookies).to.be.an('object');
           expect(cookies).to.eql({ shortlyid: '8a864482005bcc8b968f2b18f8f7ea490e577b20' });
         });
@@ -482,6 +479,10 @@ describe('', function() {
           done();
         });
       });
+
+/**************************
+ *  DONE SO FAR
+ ***************************/ 
 
       it('removes session from database if used by a different browser', function(done) {
         var client = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0)';

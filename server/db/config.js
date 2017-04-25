@@ -32,7 +32,7 @@ module.exports = (db) => {
         CREATE TABLE IF NOT EXISTS users (
           id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
           username VARCHAR(100) NOT NULL UNIQUE,
-          password VARCHAR(128) NOT NULL,
+          password VARCHAR(128),
           salt VARCHAR(16),
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP          
         );`);
@@ -44,7 +44,8 @@ module.exports = (db) => {
           id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           user_id INT,
-          hash VARCHAR(150) UNIQUE       
+          hash VARCHAR(150) UNIQUE,
+          user_agent VARCHAR(200)
         );`);
     })
   /************************************************************/
