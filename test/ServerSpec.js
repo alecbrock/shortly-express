@@ -553,23 +553,19 @@ describe('', function() {
       });
     });
 
-/**************************
- *  DONE SO FAR
- ***************************/ 
-
     it('sets and stores a cookie on the client', function(done) {
 
-      console.log('** TEST MARKER **');
-      
       requestWithSession('http://127.0.0.1:4568/', function(error, res, body) {
-        console.log(' *** MARKER : TEST RES ***', Object.keys(res.headers));
-        console.log(' *** MARKER : TEST RES ***', Object.keys(res));
         if (error) { return done(error); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
         expect(cookies.length).to.equal(1);
         done();
       });
     });
+
+/**************************
+ *  DONE SO FAR
+ ***************************/ 
 
     it('assigns session to a user when user logs in', function(done) {
       addUser(function(err, res, body) {

@@ -25,7 +25,6 @@ app.use(cookieParser);
 
 app.get('/', Auth.createSession,
 (req, res) => {
-  console.log('** APP RES COOKIES **: ', res.cookies);  
   res.render('index');
 });
 
@@ -117,12 +116,14 @@ app.post('/signup',
     });
 });
 
-app.post('/login', 
+app.post('/login', Auth.createSession,
 (req, res, next) => {
   var username = req.body.username;
   var password = req.body.password;
-  
-  // console.log('*** req.getheader["set-cookie"]', req.getHeader('Set-Cookie');
+
+  console.log('*** req', Object.keys(req));  
+  console.log('*** req.headers', Object.keys(req.headers));
+  console.log('*** req.session', req.session);
 
   return models.Users.get({ username: username })
     .then(foundUser => {
