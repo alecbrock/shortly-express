@@ -4,6 +4,7 @@ const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
+const cookieParser = require('./middleware/cookieParser');
 const models = require('./models');
 
 const app = express();
@@ -18,13 +19,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from ../public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+app.use(cookieParser);
 
-app.get('/', 
+// app.use(Auth.createSession);
+
+app.get('/', Auth.createSession,
 (req, res) => {
+  console.log('** APP RES COOKIES **: ', res.cookies);  
   res.render('index');
 });
 
-app.get('/login', 
+app.get('/login',
 (req, res) => {
   res.render('login');
 });
@@ -117,6 +122,8 @@ app.post('/login',
   var username = req.body.username;
   var password = req.body.password;
   
+  // console.log('*** req.getheader["set-cookie"]', req.getHeader('Set-Cookie');
+
   return models.Users.get({ username: username })
     .then(foundUser => {
       if (foundUser) {
@@ -124,6 +131,7 @@ app.post('/login',
           throw 'login success';
         }
       } else {
+        throw 'Go to login';
       }
     })
     .then((results) => {

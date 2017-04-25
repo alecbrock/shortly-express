@@ -480,10 +480,6 @@ describe('', function() {
         });
       });
 
-/**************************
- *  DONE SO FAR
- ***************************/ 
-
       it('removes session from database if used by a different browser', function(done) {
         var client = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0)';
         var maliciousClient = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
@@ -519,7 +515,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions and cookies', function() {
+  describe('Sessions and cookies', function() {
     var requestWithSession;
     var cookieJar;
 
@@ -544,6 +540,7 @@ describe('', function() {
     });
 
     it('saves a new session when the server receives a request', function(done) {
+
       requestWithSession('http://127.0.0.1:4568/', function(err, res, body) {
         if (err) { return done(err); }
         var queryString = 'SELECT * FROM sessions';
@@ -556,8 +553,17 @@ describe('', function() {
       });
     });
 
+/**************************
+ *  DONE SO FAR
+ ***************************/ 
+
     it('sets and stores a cookie on the client', function(done) {
+
+      console.log('** TEST MARKER **');
+      
       requestWithSession('http://127.0.0.1:4568/', function(error, res, body) {
+        console.log(' *** MARKER : TEST RES ***', Object.keys(res.headers));
+        console.log(' *** MARKER : TEST RES ***', Object.keys(res));
         if (error) { return done(error); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
         expect(cookies.length).to.equal(1);
