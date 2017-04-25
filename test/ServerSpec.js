@@ -5,7 +5,7 @@ var httpMocks = require('node-mocks-http');
 
 var app = require('../server/app.js');
 var schema = require('../server/db/config.js');
-var port = 5000;
+var port = 4568;
 
 /************************************************************/
 // Mocha doesn't have a way to designate pending before blocks.
@@ -47,7 +47,7 @@ describe('', function() {
     /**************************************************************************************/
     /* TODO: If you create a new MySQL tables, add it to the tablenames collection below. */
     /**************************************************************************************/
-    var tablenames = ['links', 'clicks'];
+    var tablenames = ['links', 'clicks', 'users', 'sessions'];
 
     db.connect(function(err) {
       if (err) { return done(err); }
@@ -63,15 +63,12 @@ describe('', function() {
 
   describe('Database Schema:', function() {
 
-    it('contains a users table', function(done) {
+    it('contains a users table', function (done) {
       var queryString = 'SELECT * FROM users';
-      db.query('truncate users', function(e, res) {
-        if (e) { return done(e); }
-        db.query(queryString, function(err, results) {
-          if (err) { return done(err); }
-          expect(results).to.deep.equal([]);
-          done();
-        });
+      db.query(queryString, function (err, results) {
+        if (err) { return done(err); }
+        expect(results).to.deep.equal([]);
+        done();
       });
     });
 
@@ -109,18 +106,16 @@ describe('', function() {
 
     it('should increment the id of new rows', function(done) {
       var newUser = {
-        username: 'Howard2',
+        username: 'Howard',
         password: 'p@ssw0rd'
       };
       db.query('INSERT INTO users SET ?', newUser, function(error, result) {
-        console.log('***: ', result, error);
         var newUserId = result.insertId;
         var otherUser = {
           username: 'Muhammed',
           password: 'p@ssw0rd'
         };
         db.query('INSERT INTO users SET ?', otherUser, function(err, results) {
-          console.log('*** 2 ***: ', results, err);        
           var userId = results.insertId;
           expect(userId).to.equal(newUserId + 1);
           done(error || err);
@@ -176,7 +171,7 @@ describe('', function() {
       });
     });
 
-    it('redirects to signup if the user already exists', function(done) {
+    it('redirects to login if the user already exists', function(done) {
       var options = {
         'method': 'POST',
         'uri': 'http://127.0.0.1:4568/signup',
@@ -190,7 +185,7 @@ describe('', function() {
         if (error) { return done(error); }
         request(options, function(err, response, resBody) {
           if (err) { return done(err); }
-          expect(response.headers.location).to.equal('/signup');
+          expect(response.headers.location).to.equal('/login');
           done();
         });        
       });
@@ -214,7 +209,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Account Login:', function() {
+  describe('Account Login:', function() {
 
     beforeEach(function(done) {
       var options = {
@@ -283,7 +278,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions Schema:', function() {
+  describe('Sessions Schema:', function() {
     it('contains a sessions table', function(done) {
       var queryString = 'SELECT * FROM sessions';
       db.query(queryString, function(err, results) {
@@ -332,7 +327,9 @@ describe('', function() {
     });
   });
 
-  xdescribe('Express Middleware', function() {
+  // DONE SO FAR
+
+  describe('Express Middleware', function() {
     var cookieParser = require('../server/middleware/cookieParser.js');
     var createSession = require('../server/middleware/auth.js').createSession;
 
@@ -361,6 +358,7 @@ describe('', function() {
 
         cookieParser(requestWithCookies, response, function() {
           var cookies = requestWithCookies.cookies;
+          console.log('** test > cookies **: ', cookies);
           expect(cookies).to.be.an('object');
           expect(cookies).to.eql({ shortlyid: '8a864482005bcc8b968f2b18f8f7ea490e577b20' });
         });

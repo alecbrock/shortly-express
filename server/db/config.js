@@ -32,8 +32,19 @@ module.exports = (db) => {
         CREATE TABLE IF NOT EXISTS users (
           id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
           username VARCHAR(100) NOT NULL UNIQUE,
-          password TEXT NOT NULL,
+          password VARCHAR(128) NOT NULL,
+          salt VARCHAR(16),
           timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP          
+        );`);
+    })
+    .then(() => {
+      // Create sessions table
+      return db.queryAsync(`
+        CREATE TABLE IF NOT EXISTS sessions (
+          id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          user_id INT,
+          hash VARCHAR(150) UNIQUE       
         );`);
     })
   /************************************************************/

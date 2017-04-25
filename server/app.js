@@ -24,6 +24,11 @@ app.get('/',
   res.render('index');
 });
 
+app.get('/login', 
+(req, res) => {
+  res.render('login');
+});
+
 app.get('/create', 
 (req, res) => {
   res.render('index');
@@ -81,36 +86,61 @@ app.post('/signup',
   var username = req.body.username;
   var password = req.body.password;
   
-  console.log('** post @ /signup **', req.body);
+  //var user = new users.User();
 
-  // return models.Links.get({ url })
-  //   .then(link => {
-  //     if (link) {
-  //       throw link;
-  //     }
-  //     return models.Links.getUrlTitle(url);
-  //   })
-  //   .then(title => {
-  //     return models.Links.create({
-  //       url: url,
-  //       title: title,
-  //       baseUrl: req.headers.origin
-  //     });
-  //   })
-  //   .then(results => {
-  //     return models.Links.get({ id: results.insertId });
-  //   })
-  //   .then(link => {
-  //     throw link;
-  //   })
-  //   .error(error => {
-  //     res.status(500).send(error);
-  //   })
-  //   .catch(link => {
-  //     res.status(200).send(link);
-  //   });
+  return models.Users.get({ username: username })
+    .then(foundUser => {
+      if (foundUser) {
+        throw 'Found: Redirect to /login';
+      } else {
+        return models.Users.create(username, password);
+      }
+    })
+    .then((results) => {
+      throw results;
+    })
+    .error(error => {
+      return res.status(500).send(error);
+    })
+    .catch(err => {
+      if (err === 'Found: Redirect to /login') {
+        res.redirect('/login');      
+      } else {
+        res.redirect('/');
+      }
+      res.end();      
+    });
 });
 
+app.post('/login', 
+(req, res, next) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  
+  return models.Users.get({ username: username })
+    .then(foundUser => {
+      if (foundUser) {
+        if (models.Users.checkPassword(password, foundUser.password, foundUser.salt)) {
+          throw 'login success';
+        }
+      } else {
+      }
+    })
+    .then((results) => {
+      throw results;
+    })
+    .error(error => {
+      return res.status(500).send(error);
+    })
+    .catch(err => {
+      if (err === 'login success') {
+        res.redirect('/');      
+      } else {
+        res.redirect('/login');
+      }
+      res.end();      
+    });
+});
 
 /************************************************************/
 // Write your authentication routes here

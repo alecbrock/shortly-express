@@ -13,6 +13,7 @@
     "start": "nodemon --ignore node_modules server",
     "start:es6": "nodemon --exec node-babel --ignore node_modules server/index.js",
     "test": "mocha --bail --reporter nyan test/ServerSpec.js; pkill -n node;",
+    "myTest": "mocha --bail --reporter mochawesome test/ServerSpec.js; pkill -n node;",
     "test:es6": "babel-node server/index.js & mocha --compilers js:babel-register --bail --reporter nyan test/ServerSpec.js; pkill -n node;",
     "lint": "eslint ./"
   },
@@ -33,7 +34,8 @@
     "babel-register": "^6.7.2",
     "chai": "^3.5.0",
     "eslint-config-hackreactor": "git://github.com/reactorcore/eslint-config-hackreactor",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "mochawesome": "^2.0.5"
   },
   "babel": {
     "presets": [
