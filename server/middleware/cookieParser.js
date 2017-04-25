@@ -2,7 +2,7 @@ const parseCookies = (req, res, next) => {
   console.log('req.headers: ', req.headers, '** req.session: **', Object.keys(req.headers), '| req.cookies: ', req.cookies);
 
   console.log('=> req.headers: ', req.headers);
-  if(req.headers.hasOwnProperty('cookie')){
+  if (req.headers.hasOwnProperty('cookie')) {
     var cookies = req.headers.cookie.split(';');
 
     for (var cookie of cookies) {

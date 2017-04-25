@@ -23,7 +23,7 @@ class User extends Model {
       username: username,
       password: passwordData.passwordHash,
       salt: passwordData.salt
-    }
+    };
 
     return super.create.call(this, options);
   }
