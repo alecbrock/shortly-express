@@ -558,19 +558,18 @@ describe('', function() {
       requestWithSession('http://127.0.0.1:4568/', function(error, res, body) {
         if (error) { return done(error); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
+        console.log('** TEST COOKIE 1 **', cookies);
         expect(cookies.length).to.equal(1);
         done();
       });
     });
 
-/**************************
- *  DONE SO FAR
- ***************************/ 
-
     it('assigns session to a user when user logs in', function(done) {
       addUser(function(err, res, body) {
         if (err) { return done(err); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
+        // console.log('** TEST RES KEYS **', Object.keys(res));
+        console.log('** TEST COOKIE 2 **', cookies);
         var cookieValue = cookies[0].value;
 
         var queryString = 'SELECT users.username FROM users, sessions WHERE sessions.hash = ?';
@@ -607,8 +606,12 @@ describe('', function() {
       });
     });
   });
+
+/**************************
+ *  DONE SO FAR
+ ***************************/ 
   
-  xdescribe('Privileged Access:', function() {
+  describe('Privileged Access:', function() {
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {

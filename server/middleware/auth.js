@@ -1,10 +1,6 @@
 const models = require('../models');
 const Promise = require('bluebird');
 
-  // check if session exists
-    // if session exists, check for user-agent match
-      // if no use ragent match, delete session
-    // If session not exists, see below
 
 module.exports.createSession = (req, res, next) => {
 

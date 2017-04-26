@@ -24,132 +24,162 @@ app.use(cookieParser);
 // app.use(Auth.createSession);
 
 app.get('/', Auth.createSession,
-(req, res) => {
-  res.render('index');
-});
+  (req, res) => {
+    if (!res['cookies']) {
+      res['cookies'] = {};
+    }
+    res.cookies['shortlyid'] = {
+      value: req.session.hash
+    };
+    res.setHeader('Set-Cookie', ['shortlyid=' + req.session.hash]);
+    res.render('index');
+  });
 
-app.get('/login',
-(req, res) => {
-  res.render('login');
-});
+app.get('/login', Auth.createSession,
+  (req, res) => {
+    res.render('login');
+  });
 
-app.get('/create', 
-(req, res) => {
-  res.render('index');
-});
-
-app.get('/links', 
-(req, res, next) => {
-  models.Links.getAll()
-    .then(links => {
-      res.status(200).send(links);
-    })
-    .error(error => {
-      res.status(500).send(error);
-    });
-});
-
-app.post('/links', 
-(req, res, next) => {
-  var url = req.body.url;
-  if (!models.Links.isValidUrl(url)) {
-    // send back a 404 if link is not valid
-    return res.sendStatus(404);
-  }
-
-  return models.Links.get({ url })
-    .then(link => {
-      if (link) {
-        throw link;
-      }
-      return models.Links.getUrlTitle(url);
-    })
-    .then(title => {
-      return models.Links.create({
-        url: url,
-        title: title,
-        baseUrl: req.headers.origin
+app.get('/logout',
+  (req, res) => {
+    return models.Sessions.delete({ hash: req.cookies['shortlyid'] }) // can not find req.session
+      .then(() => {
+        return models.Sessions.create(req, res);
+      })
+      .then((session) => {
+        res.setHeader('Set-Cookie', [`shortlyid="${session.hash}"`]);
+        res.end();
+      })
+      .catch(() => {
+        res.end();
       });
-    })
-    .then(results => {
-      return models.Links.get({ id: results.insertId });
-    })
-    .then(link => {
-      throw link;
-    })
-    .error(error => {
-      res.status(500).send(error);
-    })
-    .catch(link => {
-      res.status(200).send(link);
-    });
-});
+  });
 
-app.post('/signup', 
-(req, res, next) => {
-  var username = req.body.username;
-  var password = req.body.password;
-  
-  //var user = new users.User();
+app.get('/create', Auth.createSession,
+  (req, res) => {
+    res.render('index');
+  });
 
-  return models.Users.get({ username: username })
-    .then(foundUser => {
-      if (foundUser) {
-        throw 'Found: Redirect to /login';
-      } else {
-        return models.Users.create(username, password);
-      }
-    })
-    .then((results) => {
-      throw results;
-    })
-    .error(error => {
-      return res.status(500).send(error);
-    })
-    .catch(err => {
-      if (err === 'Found: Redirect to /login') {
-        res.redirect('/login');      
-      } else {
-        res.redirect('/');
-      }
-      res.end();      
-    });
-});
+app.get('/links', Auth.createSession,
+  (req, res, next) => {
+    models.Links.getAll()
+      .then(links => {
+        res.status(200).send(links);
+      })
+      .error(error => {
+        res.status(500).send(error);
+      });
+  });
+
+app.post('/links', Auth.createSession,
+  (req, res, next) => {
+    var url = req.body.url;
+    if (!models.Links.isValidUrl(url)) {
+      // send back a 404 if link is not valid
+      return res.sendStatus(404);
+    }
+
+    return models.Links.get({ url })
+      .then(link => {
+        if (link) {
+          throw link;
+        }
+        return models.Links.getUrlTitle(url);
+      })
+      .then(title => {
+        return models.Links.create({
+          url: url,
+          title: title,
+          baseUrl: req.headers.origin
+        });
+      })
+      .then(results => {
+        return models.Links.get({ id: results.insertId });
+      })
+      .then(link => {
+        throw link;
+      })
+      .error(error => {
+        res.status(500).send(error);
+      })
+      .catch(link => {
+        res.status(200).send(link);
+      });
+  });
+
+app.post('/signup', Auth.createSession,
+  (req, res, next) => {
+    var username = req.body.username;
+    var password = req.body.password;
+
+    //var user = new users.User();
+
+    return models.Users.get({ username: username })
+      .then(foundUser => {
+        if (foundUser) {
+          throw 'Found: Redirect to /login';
+        } else {
+          return models.Users.create(username, password);
+        }
+      })
+      .then((results) => {
+        throw results;
+      })
+      .error(error => {
+        return res.status(500).send(error);
+      })
+      .catch(err => {
+        if (err === 'Found: Redirect to /login') {
+          res.redirect('/login');
+        } else {
+          res.redirect('/');
+        }
+        res.end();
+      });
+  });
 
 app.post('/login', Auth.createSession,
-(req, res, next) => {
-  var username = req.body.username;
-  var password = req.body.password;
+  (req, res, next) => {
+    var username = req.body.username;
+    var password = req.body.password;
 
-  console.log('*** req', Object.keys(req));  
-  console.log('*** req.headers', Object.keys(req.headers));
-  console.log('*** req.session', req.session);
+    console.log('** login **');
 
-  return models.Users.get({ username: username })
-    .then(foundUser => {
-      if (foundUser) {
-        if (models.Users.checkPassword(password, foundUser.password, foundUser.salt)) {
-          throw 'login success';
+    return models.Users.get({ username: username })
+      .then(foundUser => {
+        if (foundUser) {
+          if (models.Users.checkPassword(password, foundUser.password, foundUser.salt)) {
+            //req.session['username'] = foundUser.username;
+            if (!res['cookies']) {
+              res['cookies'] = {};
+            }
+            res.cookies['shortlyid'] = {
+              value: req.session.hash,
+              username: foundUser.username
+            };
+            res.setHeader('Set-Cookie', [`shortlyid="${req.session.hash}; username=${foundUser.username}"`]);
+
+            //res.setHeader('Set-Cookie', ['shortlyid=' + req.session.hash]);
+            throw 'login success';
+          }
+        } else {
+          throw 'Go to login';
         }
-      } else {
-        throw 'Go to login';
-      }
-    })
-    .then((results) => {
-      throw results;
-    })
-    .error(error => {
-      return res.status(500).send(error);
-    })
-    .catch(err => {
-      if (err === 'login success') {
-        res.redirect('/');      
-      } else {
-        res.redirect('/login');
-      }
-      res.end();      
-    });
-});
+      })
+      .then((results) => {
+        throw results;
+      })
+      .error(error => {
+        return res.status(500).send(error);
+      })
+      .catch(err => {
+        if (err === 'login success') {
+          res.redirect('/');
+        } else {
+          res.redirect('/login');
+        }
+      });
+  });
 
 /************************************************************/
 // Write your authentication routes here
